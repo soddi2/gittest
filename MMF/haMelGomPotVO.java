@@ -1,4 +1,4 @@
-package mmf;
+package MMF;
 
 public class haMelGomPotVO {
 	

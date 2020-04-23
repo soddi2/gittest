@@ -1,13 +1,19 @@
-package mmf;
+package MMF;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.Line;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.swing.text.StyleContext.SmallAttributeSet;
 
 import com.mysql.cj.x.protobuf.MysqlxConnection.Close;
+import com.mysql.cj.x.protobuf.MysqlxCrud.Limit;
 
-import codecLib.mpa.Decoder;
 import javazoom.jl.player.AudioDevice;
 import javazoom.jl.player.FactoryRegistry;
 import javazoom.jl.decoder.*;
@@ -60,7 +66,7 @@ public class haMelGomPotFunc implements Runnable {
 					
 					while(length < BUFFER_SIZE && header !=null) {
 						
-						pb = (SampleBuffer)decoder.decode(header,bitstream);
+						pb = (SampleBuffer)decoder.decodeFrame(header,bitstream);
 						playes.add(new Sample(pb.getBuffer(), pb.getBufferLength()));
 						length++;
 						bitstream.closeFrame();
@@ -168,7 +174,100 @@ public class haMelGomPotFunc implements Runnable {
 			Close();
 	}//6. 버퍼에 저장된 데이터를 꺼내서 노래를 실행, 실행 중 다른 상태코드가 진입시 기능 수행(if문)
 	
+	public void Close() {
+		if((out != null ) && !out.isOpen()){
+			out.close();
+		}
+		length = 0;
+		playes = null;
+		out = null;
+		decoder = null;
+	}//7. 버퍼에 저장된 데이터를 완전 초기화 시켜서 노래가 끈어지는 역할을 하는 정지 도우미
+
+	public void suspend() {
+		if(stateCode == STATE_SUSPENDED) {
+			return;
+		}else if(stateCode == STATE_INIT) {
+			System.out.println("실행중이 아닙니다");
+		}else if(stateCode==STATE_STOPPED) {
+			System.out.println("정지상태 입니다.");
+		}else {
+			System.out.println("일시 정지");
+			stateCode = STATE_SUSPENDED;
+		}
+	}
+	
+	public void resume() {
+		if(stateCode == STATE_STARTED || stateCode == STATE_INIT) {
+			System.out.println("실행중이 아닙니다.");
+			return;
+		}
+		if(stateCode == STATE_STOPPED) 
+			System.out.println("정지상태 입니다.");
+			stateCode = STATE_STARTED;
+			System.out.println("되돌리기");
+	}//8.일시정지와 되돌리기
 }
+//	static LinkedList<Line> speakers = new LinkedList<Line>();
+//
+//	final static void findSpeakers() {
+//		Mixer.Info[] imxers = AudioSystem.getMixerInfo();
+//		
+//		for(Mixer.Info mixerInfo : mixers) {
+//			if(!mixerInfo.getName().equals("java sound Audio Engine")) continue;
+//			
+//			Mixer mixer = AudioSystem.getMixer(mixerInfo);
+//			Line.Info[] lines = mixer.getSourceLineInfo();
+//			
+//			for(Line.Info info : lines) {
+//				try {
+//					Line line = mixer.getLine(info);
+//					speakers.add(line);
+//					
+//				} catch (LineUnavailableException e) {
+//					e.printStackTrace(); 
+//				} catch (IllegalAccessError e) {
+//					// TODO: handle exception
+//				}
+//			}
+//			
+//		}
+//	}
+//	static(findSpeakers());
+//
+//	public void setVolune(float level) {
+//		System.out.println("setting volume to "+level);
+//		for(Line line : speakers) {
+//			try {
+//				line.open();
+//				FloatControl control = (FloatControl)line.getControl(FloatControl.Type.MASTER_GAIN);
+//				control.setValue(limit(control,level));
+//				
+//			} catch (LineUnavailableException e) {
+//				e.printStackTrace(); 
+//			} catch (IllegalAccessError e) {
+//				// TODO: handle exception
+//			}
+//			private static float limit(FloatControl control,float level) {
+//				return Math.min(control.getMaximum(), Math.max(control.getMinimum(), level));
+//		}
+//		
+//	}// 9. 볼륨 조절
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

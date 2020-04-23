@@ -1,4 +1,4 @@
-package mmf;
+package MMF;
 
 public class Main {
 	public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package mmf;
+package MMF;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
